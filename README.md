@@ -31,7 +31,11 @@ ex. # command --flag1 arg --flag2 arg
 ----------
 ### Git
 ```
-# git clone 
+# git clone https://github.com/JonathanArrance/API_linux.git
+
+# cd apilinux
+
+# python apilinux
 ```
 
 ### PIP
