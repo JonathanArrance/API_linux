@@ -1,45 +1,33 @@
 #!/usr/bin/python
-import eve
+import api_lib as al
 import sys
-import pam
 
-def linux_login(username=None,password=None):
-    """
-    Desc: Use the Linux PAM system to authenticate a user against the sytem.
-    Input: username - valid linux user name
-              password - valid password for the linux user account
-    Output: True
-                 ERROR
-    Note: if the user is not  a valid linux user then authintication will fail.
-    """
-    if (username=None or password=None):
-        return 'ERROR: Account username or password not given'
+#api version
+API_VERSION='1.0'
 
-    p = pam.pam()
-    out = p.authenticate(username,password)
-    
-    if(out == False):
-        return 'ERROR: Account not authorized.'
-
-    return out
+@al.auth.verify_password
+def verify_password(username_or_token, password):
+    # first try to authenticate by token
+    user = al.verify_auth_token(username_or_token)
+    if not user:
+        # try to authenticate with username/password
+        user = mongo_lib.Account.query.filter_by(username=username_or_token).first()
+        if not user or not user.verify_password(password):
+            return False
+    g.user = user
+    return True
 
 
-def token():
-    """
-    Desc: Get a token if the user is a vsalid Linux system user.
-    Input: None
-    Output: Valid auth token
-    Error: 400
-    Note: 
-    """
-
-def run_command():
-    pass
-
-def run()
-    #check if the credentials passed in are valid system credentials
-    
-    
-
-if  __name__ == '__main__':
-    run()
+@al.app.route('/api/'+API_VERSION+'/token')
+@al.auth.login_required
+def get_auth_token():
+    token = g.user.generate_auth_token(3600)
+    return jsonify({'token': token.decode('ascii'), 'duration': 3600})
+"""
+@al.app.route('/api/'+API_VERSION+'/resource')
+@al.auth.login_required
+def get_resource():
+    return jsonify({'data': 'Hello, %s!' % g.user})
+"""  
+if __name__ == '__main__':
+    al.app.run(host='0.0.0.0',port=10500, debug=True,ssl_context='adhoc')
