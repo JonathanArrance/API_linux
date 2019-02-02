@@ -18,7 +18,7 @@ def linux_login(username=None,password=None):
                  ERROR
     Note: if the user is not  a valid linux user then authintication will fail.
     """
-    if (username=None or password=None):
+    if (username==None or password==None):
         return 'ERROR: Account username or password not given'
 
     p = pam.pam()
@@ -37,7 +37,7 @@ def generate_auth_token(username=None,password=None,expires=None):
     Output: Valid auth token
     Error: 400
     Note: 
-    """    login = linux_login(username,pasword)    if (login == False):        abort(400)    s = Serializer(app.config['SECRET_KEY'], expires_in=expires)    return s.dumps()    
+    """    login = linux_login(username,pasword)    if (login == False):        abort(400)    s = Serializer(app.config['SECRET_KEY'], expires_in=expires)    return s.dumps()    
 @staticmethoddef verify_auth_token(token=None,username=None,password=None):    if token == None:        abort(400)    s = Serializer(app.config['SECRET_KEY'])        try:        data = s.loads(token)    except SignatureExpired as e:        return None    # valid token, but expired    except BadSignature as f:        return None   # invalid token        #user = mongo.db.Account.find_one({'userid':data['userid']})    user = linux_login(username,password)        return user 
 
 def run_command():

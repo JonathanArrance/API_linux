@@ -21,7 +21,8 @@ def verify_password(username_or_token, password):
 @al.app.route('/api/'+API_VERSION+'/token')
 @al.auth.login_required
 def get_auth_token():
-    token = g.user.generate_auth_token(3600)
+    req_data = request.get_json()
+    token = g.user.generate_auth_token(req_data['username'],req_data['password'],3600)
     return jsonify({'token': token.decode('ascii'), 'duration': 3600})
 """
 @al.app.route('/api/'+API_VERSION+'/resource')
