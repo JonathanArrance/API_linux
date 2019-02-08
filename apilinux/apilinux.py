@@ -1,34 +1,47 @@
-#!/usr/bin/python
-import api_lib as al
+#!/usr/bin/env python
+#all of this needs to be chnaged use as an example and guide
+import os
 import sys
+import settings
+import linux_lib
 
-#api version
-API_VERSION='1.0'
+from flask import request, jsonify, g
 
-@al.auth.verify_password
+api = settings.API_VERSION
+linux = linux_lib.Linux()
+
+@linux_lib.auth.verify_password
 def verify_password(username_or_token, password):
     # first try to authenticate by token
-    user = al.verify_auth_token(username_or_token)
-    if not user:
+    user = linux.verify_auth_token(username_or_token)
+    if user is False:
         # try to authenticate with username/password
-        user = mongo_lib.Account.query.filter_by(username=username_or_token).first()
-        if not user or not user.verify_password(password):
+        user = linux.linux_login(username_or_token,password)
+        if user is False:
             return False
-    g.user = user
+   # g.user = user
     return True
 
-
-@al.app.route('/api/'+API_VERSION+'/token')
-@al.auth.login_required
+#curl -u backend:rackbrain -i -k -X GET http://192.168.1.56:9443/api/1.0/token
+@linux_lib.app.route('/api/'+api+'/token',methods=['POST'])
+@linux_lib.auth.login_required
 def get_auth_token():
-    req_data = request.get_json()
-    token = g.user.generate_auth_token(req_data['username'],req_data['password'],3600)
+    token = linux.generate_auth_token(3600)
     return jsonify({'token': token.decode('ascii'), 'duration': 3600})
-"""
-@al.app.route('/api/'+API_VERSION+'/resource')
-@al.auth.login_required
-def get_resource():
-    return jsonify({'data': 'Hello, %s!' % g.user})
-"""  
+
+@linux_lib.app.route('/api/'+api+'/alive',methods=['POST'])
+@linux_lib.auth.login_required
+def get_alive():
+    return jsonify({'data': 'Linux api is alive.'})
+
+@linux_lib.app.route('/api/'+api+'/command', methods=['POST'])
+@linux_lib.auth.login_required
+def run_command():
+    req_data = request.get_json()
+    print req_data
+    params = {'command':req_data['command'],'flags':req_data['flags']}
+    return linux.run_linux_command(params)
+
 if __name__ == '__main__':
-    al.app.run(host='0.0.0.0',port=10500, debug=True,ssl_context='adhoc')
+    linux_lib.app.run(host='0.0.0.0',port=10500, debug=True,ssl_context='adhoc')
+    #mongo_lib.app.run(host='0.0.0.0',port=10500, debug=True)
