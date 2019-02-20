@@ -3,6 +3,7 @@
 import os
 import sys
 import settings
+import json
 import linux_lib
 
 from flask import request, jsonify, g
@@ -23,24 +24,22 @@ def verify_password(username_or_token, password):
     return True
 
 #curl -u backend:rackbrain -i -k -X GET http://192.168.1.56:9443/api/1.0/token
-@linux_lib.app.route('/api/'+api+'/token',methods=['POST'])
+@linux_lib.app.route('/api/'+api+'/token',methods=['GET'])
 @linux_lib.auth.login_required
 def get_auth_token():
     token = linux.generate_auth_token(3600)
     return jsonify({'token': token.decode('ascii'), 'duration': 3600})
 
 @linux_lib.app.route('/api/'+api+'/alive',methods=['POST'])
-@linux_lib.auth.login_required
 def get_alive():
     return jsonify({'data': 'Linux api is alive.'})
 
-@linux_lib.app.route('/api/'+api+'/command', methods=['POST'])
+#use lsblk and ls
+@linux_lib.app.route('/api/'+api+'/command',methods=['POST'])
 @linux_lib.auth.login_required
 def run_command():
     req_data = request.get_json()
-    print req_data
-    params = {'command':req_data['command'],'flags':req_data['flags']}
-    return linux.run_linux_command(params)
+    return linux.run_linux_command(req_data)
 
 if __name__ == '__main__':
     linux_lib.app.run(host='0.0.0.0',port=10500, debug=True,ssl_context='adhoc')

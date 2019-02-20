@@ -56,30 +56,42 @@ class Linux():
         
     @staticmethod
     def run_linux_command(input_dict):
-        if input_dict['command'] == None:
-            abort(400)
+        #Build up the command to run
+        #1. Command should be lower case
+        #2. if PATH1 and PATH2 are not specified local path should be used
+        #3. flags should be input as an array if multiple flags are present
+            #should be ignored if no flags present
+            #should be able to run any sort of flag
         
-        if command not in input_dict:
-            abort(400)
-            
         out = None
         args = []
-    
-        if input_dict['flags'] == None:
-            args.append(command)
-            out = subprocess.Popen(args, stdout=subprocess.PIPE)
-            
-        if isinstance(list, input_dict['flags']):
-            args.append(command)
-            args = args + flags
-            out = subprocess.Popen(args, stdout=subprocess.PIPE)
-            
-        if isinstance(dict,input_dict['flags']):
-            args.append(command)
-            for k,v in input_dict['flags'].iteritems():
-                args.append(k)
-                args.append(v)
-            out = subprocess.Popen(args, stdout=subprocess.PIPE)
         
-        output, err = out.communicate()
-        return {'output':output,'error':err}
+        try:
+            string = input_dict['command'].encode("utf-8")
+            args.append(str(string).lower())
+        except Exception:
+            abort(400)
+        
+        #clean up the flags
+        if 'flags' in input_dict:
+            flag_string = input_dict['flags'].encode("utf-8")
+            flags = flag_string.split(',')
+            args = args + flags
+
+        if 'path' in input_dict and input_dict['path'] != '':
+            args.append(str(input_dict['path'].encode("utf-8")).lower())
+
+        if 'path' not in input_dict or input_dict['path'] == '':
+            if ('path1' in input_dict and input_dict['path1'] != ''):
+                args.append(str(input_dict['path1'].encode("utf-8")).lower())
+                if ('path2' in input_dict and input_dict['path2'] != ''):
+                    args.append(str(input_dict['path2'].encode("utf-8")).lower())
+
+        try:
+            output = 
+        except Exception:
+            pass
+        
+        return output
+        
+        
