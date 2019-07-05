@@ -93,6 +93,7 @@ class Linux():
                 args.append(str(input_dict['path1'].encode("utf-8")))
                 if ('path2' in input_dict and input_dict['path2'] != ''):
                     args.append(str(input_dict['path2'].encode("utf-8")))
+   
         try:
             out = subprocess.Popen(args, stdout=subprocess.PIPE)
             # Run the command
