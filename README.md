@@ -4,6 +4,7 @@ API_linux is a light weight process that will allow a user to execute commands o
 
 ## Login
 --------
+The user account must exist on the target Linux system.
 
 ```
 Get a token
