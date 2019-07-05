@@ -4,6 +4,7 @@ API_linux is a light weight process that will allow a user to execute commands o
 
 ## Login
 --------
+The user account must exist on the target Linux system.
 
 ```
 Get a token
@@ -16,15 +17,9 @@ curl -u username:password -k -i https://mylinuxhost/login
 ```
 Use a token to login to the host and execute a command with flags.
 
-ex. # ls -al
-    # curl -u TOKEN:x -k -i https://mylinuxhost/command -d {'command':'ls','flags':['-a','-l']}
+ex. # ps -ef 
+    # curl -u TOKEN:x -i -k -X POST https://192.168.1.64:10500/api/1.0/command -H "Content-Type: application/json" -d '{"command":"ps","flags":"-ef"}'
 
-or
-
-Use a token to login and execute a command with arguments
-
-ex. # command --flag1 arg --flag2 arg 
-    # curl -u TOKEN:x -k -i https://mylinuxhost/command -d {'command':'linux_command','flags':{'flag1':'arg','flag2':'arg'}}
 ```
 
 ## Install
