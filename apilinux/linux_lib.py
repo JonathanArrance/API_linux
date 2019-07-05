@@ -2,6 +2,7 @@
 import subprocess
 import pam
 import pwd
+import pprint
 
 #settings file
 import settings
@@ -13,6 +14,7 @@ from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSign
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = settings.SECRET_KEY
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 auth = HTTPBasicAuth()
 
@@ -65,7 +67,6 @@ class Linux():
         
         out = None
         args = []
-        
         try:
             string = input_dict['command'].encode("utf-8")
             args.append(str(string).lower())
@@ -74,24 +75,31 @@ class Linux():
         
         #clean up the flags
         if 'flags' in input_dict:
-            flag_string = input_dict['flags'].encode("utf-8")
-            flags = flag_string.split(',')
-            args = args + flags
+            try:
+                flag_string = input_dict['flags'].encode("utf-8")
+                flags = flag_string.split(',')
+                args = args + flags
+            except:
+                abort(400)
 
         if 'path' in input_dict and input_dict['path'] != '':
-            args.append(str(input_dict['path'].encode("utf-8")).lower())
+            try:
+                args.append(str(input_dict['path'].encode("utf-8")))
+            except:
+                abort(400)
 
         if 'path' not in input_dict or input_dict['path'] == '':
             if ('path1' in input_dict and input_dict['path1'] != ''):
-                args.append(str(input_dict['path1'].encode("utf-8")).lower())
+                args.append(str(input_dict['path1'].encode("utf-8")))
                 if ('path2' in input_dict and input_dict['path2'] != ''):
-                    args.append(str(input_dict['path2'].encode("utf-8")).lower())
-
-        #try:
-        #    output = 
-        #except Exception:
-        #    pass
+                    args.append(str(input_dict['path2'].encode("utf-8")))
+   
+        try:
+            out = subprocess.Popen(args, stdout=subprocess.PIPE)
+            # Run the command
+            output = out.communicate()[0]
+        except Exception as e:
+            abort(400)
+            
         
-        #return output
-        
-        
+        return (jsonify(output),200)
