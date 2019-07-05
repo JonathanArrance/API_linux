@@ -87,11 +87,11 @@ class Linux():
                 if ('path2' in input_dict and input_dict['path2'] != ''):
                     args.append(str(input_dict['path2'].encode("utf-8")).lower())
 
-        try:
-            output = 
-        except Exception:
-            pass
+        #try:
+        #    output = 
+        #except Exception:
+        #    pass
         
-        return output
+        #return output
         
         
