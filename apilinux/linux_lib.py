@@ -2,12 +2,10 @@
 import subprocess
 import pam
 import pwd
-import pprint
-
-#settings file
+import logging
 import settings
 
-from flask import Flask, abort, request, jsonify, g
+from flask import Flask, abort, jsonify
 from flask_httpauth import HTTPBasicAuth
 from passlib.apps import custom_app_context as pwd_context
 from itsdangerous import (TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
@@ -44,8 +42,10 @@ class Linux():
         try:
             data = s.loads(token)
         except SignatureExpired as e:
+            logging.error(e)
             return False    # valid token, but expired
-        except BadSignature as f:
+        except BadSignature as e:
+            logging.error(e)
             return False   # invalid token
         except:
             return False
@@ -70,7 +70,8 @@ class Linux():
         try:
             string = input_dict['command'].encode("utf-8")
             args.append(str(string).lower())
-        except Exception:
+        except Exception as e:
+            logging.error(e)
             abort(400)
         
         #clean up the flags
@@ -79,13 +80,15 @@ class Linux():
                 flag_string = input_dict['flags'].encode("utf-8")
                 flags = flag_string.split(',')
                 args = args + flags
-            except:
+            except Exception as e:
+                logging.error(e)
                 abort(400)
 
         if 'path' in input_dict and input_dict['path'] != '':
             try:
                 args.append(str(input_dict['path'].encode("utf-8")))
-            except:
+            except Exception as e:
+                logging.error(e)
                 abort(400)
 
         if 'path' not in input_dict or input_dict['path'] == '':
@@ -99,6 +102,7 @@ class Linux():
             # Run the command
             output = out.communicate()[0]
         except Exception as e:
+            logging.error(e)
             abort(400)
             
         

@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 #all of this needs to be chnaged use as an example and guide
-import os
-import sys
+#import os
+#import sys
+#import json
 import settings
-import json
 import linux_lib
-
-from flask import request, jsonify, g
+from flask import request, jsonify
 
 api = settings.API_VERSION
 linux = linux_lib.Linux()
@@ -39,7 +38,7 @@ def get_alive():
 @linux_lib.auth.login_required
 def run_command():
     req_data = request.get_json()
-    print req_data
+    #print(req_data)
     return linux.run_linux_command(req_data)
 
 if __name__ == '__main__':
