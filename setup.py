@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
           'flask==1.0.2',
-          'Jinja2==2.10.1',
+          'Jinja2==2.11.3',
           'pyOpenSSL==18.0.0',
           'python-pam>=1.8.4'
       ],
